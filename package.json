@@ -1,0 +1,14 @@
+{
+    "name": "ecc-discord-bot",
+    "preferGlobal": true,
+    "version": "0.0.1",
+    "author": "Troy McCabe <troymccabe@gmail.com>",
+    "description": "A friendly bot for the ECC Discord server",
+    "license": "MIT",
+    "engines": {
+        "node": ">=0.10"
+    },
+    "dependencies": {
+        "discord.js": "^11.3.0"
+    }
+}
