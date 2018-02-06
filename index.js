@@ -14,7 +14,7 @@ client.on('message', msg => {
     /* Lambo/Moon check */
     var matches = msg.content.match(/wh?en (moon|lambo)/igm);
     if (matches && matches.length) {
-        msg.channel.send('How should I know?? Go ask in #price-prediction')
+        msg.channel.send('How should I know?? Go ask in <#409184678730268672>')
             .catch(reason => {});
     }
 });
