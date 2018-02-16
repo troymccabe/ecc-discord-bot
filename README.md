@@ -1,7 +1,13 @@
-# ecc-discord-bot
-Bot for the ECC discord server
+# ecc-helper-bot
+Friendly helper for the ECC Discord & Slack servers
 
 ## Commands
+### ?help
+List additional help commands
+
+### ?wiki
+
+
 ### "when lambo"/"when moon"
 When these strings (or even "wen lambo"/"wen moon") are found, it will redirect the user to `#price-prediction`
 
