@@ -3,13 +3,14 @@
     "preferGlobal": true,
     "version": "0.0.1",
     "author": "Troy McCabe <troymccabe@gmail.com>",
-    "description": "Friendly helper for the ECC Discord & Slack servers",
+    "description": "Friendly helper for ECC communication channels",
     "license": "MIT",
     "engines": {
         "node": ">=0.10"
     },
     "dependencies": {
         "discord.js": "^11.3.0",
+        "node-telegram-bot-api": "^0.30",
         "@slack/client": "^3.16"
     }
 }
