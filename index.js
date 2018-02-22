@@ -156,4 +156,13 @@ if (process.env.ECC_TELEGRAM_BOT_TOKEN) {
             response.then((val) => {telegramBot.sendMessage(message.chat.id, val, {parse_mode: 'Markdown'});});
         }
     });
+
+    telegramBot.on('new_chat_members', (message) => {
+        var addressTo = '';
+        if (message.new_chat_members && message.new_chat_members.length) {
+            addressTo = '(';
+            message.new_chat_members.map((user) => {addressTo += `@${user.username}, `});
+        }
+        telegramBot.sendMessage(message.chat.id, `Welcome ${addressTo.replace(/, /, ')')} to the ECC Family. Please take a seat, and read the rules in channel information.`, {parse_mode: 'Markdown'});
+    })
 }
