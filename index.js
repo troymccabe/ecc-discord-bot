@@ -160,9 +160,14 @@ if (process.env.ECC_TELEGRAM_BOT_TOKEN) {
     telegramBot.on('new_chat_members', (message) => {
         var addressTo = '';
         if (message.new_chat_members && message.new_chat_members.length) {
-            addressTo = '(';
-            message.new_chat_members.map((user) => {addressTo += `@${user.username}, `});
+            message.new_chat_members.map((user) => {
+                if (user.username) {
+                    addressTo += `@${user.username}, `
+                } else {
+                    addressTo += `${user.first_name}, `
+                }
+            });
         }
-        telegramBot.sendMessage(message.chat.id, `Welcome ${addressTo.replace(/, /, ')')} to the ECC Family. Please take a seat, and read the rules in channel information.`, {parse_mode: 'Markdown'});
+        telegramBot.sendMessage(message.chat.id, `Welcome ${addressTo.replace(/, /, '')} to the ECC Family. Please take a seat, and read the rules in channel information.`, {parse_mode: 'Markdown'});
     })
 }
