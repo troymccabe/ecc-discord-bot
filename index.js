@@ -1,14 +1,26 @@
 /**
  * ECC helper bot
  * 
- * Friendly helper for the ECC Discord & Slack servers
+ * Friendly helper for the ECC Discord, Slack, and Telegram servers
  * 
  * @author Troy McCabe <troymccabe@gmail.com>
  */
 
+let DISCORD_CHANNELS = {};
+let DISCORD_CLIENT;
+let SLACK_CHANNELS = {};
+let SLACK_CLIENT;
+let TELEGRAM_CLIENT;
 const SOURCE_DISCORD = 'discord';
 const SOURCE_SLACK = 'slack';
 const SOURCE_TELEGRAM = 'telegram';
+const TOKEN_DISCORD = process.env.ECC_BOT_DISCORD_TOKEN;
+const TOKEN_SLACK = process.env.ECC_BOT_SLACK_TOKEN;
+const TOKEN_TELEGRAM = process.env.ECC_BOT_TELEGRAM_TOKEN;
+
+function cleanChannelName(channel) {
+    return channel.toLowerCase().replace(/( |-)/, '_');
+}
 
 function processMessage(message, source) {
     if (!message) {
@@ -77,7 +89,7 @@ function processMessage(message, source) {
 /*
  * DISCORD
  */
-if (process.env.ECC_DISCORD_BOT_TOKEN) {
+if (TOKEN_DISCORD) {
     const Discord = require("discord.js");
 
     var discordClient = new Discord.Client();
@@ -99,20 +111,22 @@ if (process.env.ECC_DISCORD_BOT_TOKEN) {
         }
     });
 
-    discordClient.login(process.env.ECC_DISCORD_BOT_TOKEN);
+    discordClient.login(TOKEN_DISCORD)
+        .then(() => {
+            discordClient.channels.map((channel) => {
+                DISCORD_CHANNELS[cleanChannelName(channel.name)] = channel;
+            });
+        });
 }
 
 /*
  * SLACK
  */
-if (process.env.ECC_SLACK_BOT_TOKEN) {
-    const { RtmClient, CLIENT_EVENTS, RTM_EVENTS } = require('@slack/client');
+if (TOKEN_SLACK) {
+    const { RtmClient, WebClient, CLIENT_EVENTS, RTM_EVENTS } = require('@slack/client');
 
     const appData = {};
-    const slackClient = new RtmClient(
-        process.env.ECC_SLACK_BOT_TOKEN, 
-        {dataStore: false, useRtmConnect: true,}
-    );
+    var slackClient = new RtmClient(TOKEN_SLACK, {dataStore: false, useRtmConnect: true,});
 
     slackClient.on(CLIENT_EVENTS.RTM.AUTHENTICATED, (connectData) => {
         appData.selfId = connectData.self.id;
@@ -138,16 +152,27 @@ if (process.env.ECC_SLACK_BOT_TOKEN) {
     });
 
     slackClient.start();
+
+    new WebClient(TOKEN_SLACK)
+        .channels
+        .list()
+        .then((result) => { 
+            result.channels.forEach(channel => {
+                SLACK_CHANNELS[cleanChannelName(channel.name)] = channel;
+            });
+        })
+        .catch(console.error);
 }
 
 /*
  * TELEGRAM
  */
-if (process.env.ECC_TELEGRAM_BOT_TOKEN) {
+if (TOKEN_TELEGRAM) {
     const TelegramBot = require('node-telegram-bot-api');
-    const telegramBot = new TelegramBot(process.env.ECC_TELEGRAM_BOT_TOKEN, {polling: {interval: 0, params: {timeout: 200}}});
+    var telegramBot = new TelegramBot(TOKEN_TELEGRAM, {polling: {interval: 0, params: {timeout: 200}}});
 
     telegramBot.on('message', (message) => {
+        console.log(message.chat.id);
         var response = processMessage(message.text, SOURCE_TELEGRAM);
 
         if (typeof response == 'string') {
@@ -171,3 +196,31 @@ if (process.env.ECC_TELEGRAM_BOT_TOKEN) {
         telegramBot.sendMessage(message.chat.id, `Welcome ${addressTo.replace(/, /, '')} to the ECC Family. Please take a seat, and read the rules in channel information.`, {parse_mode: 'Markdown'});
     })
 }
+
+/*
+ * Voting 
+ */
+function remindAboutExchangeVotes() {
+    var voteMessage = 'Don\'t forget to vote for ECC to get listed on new exchanges!\r\n\r\n' +
+        'We\'re currently in the running for:\r\n' +
+        'COBINHOOD: https://cobinhood.canny.io/token-listing/p/ecc-coin-listing\r\n' +
+        'NEXT.exchange: https://nextexchange.featureupvote.com/suggestions/4595/please-add-ecc-coin\r\n' +
+        'CoinFalcon: https://feedback.coinfalcon.com/coin-request/p/ecc\r\n' +
+        'Lescovex: https://lescovex.featureupvote.com/suggestions/6241/ecc-coin-blockchain-services-for-the-masses\r\n\r\n' +
+        '_Please make sure to follow the rules for each site_';
+    if (discordClient && DISCORD_CHANNELS.ecc) {
+        DISCORD_CHANNELS.ecc.send(voteMessage).catch((err) => {console.error(err);});
+    }
+    if (slackClient && SLACK_CHANNELS.ecc) {
+        slackClient.sendMessage(voteMessage, SLACK_CHANNELS.ecc.id);
+    }
+    if (telegramBot) {
+        telegramBot.sendMessage(-1001313163406,  voteMessage, {parse_mode: 'Markdown'});
+    }
+};
+setInterval(remindAboutExchangeVotes, 1000 * 60 * 60 /* millis * seconds * minutes = 1hr */);
+setTimeout(remindAboutExchangeVotes, 15000);
+
+/*
+ * Donations
+ */
