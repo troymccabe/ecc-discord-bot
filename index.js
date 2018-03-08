@@ -218,7 +218,7 @@ function remindAboutExchangeVotes() {
         telegramBot.sendMessage(-1001313163406,  voteMessage, {parse_mode: 'Markdown'});
     }
 };
-setInterval(remindAboutExchangeVotes, 1000 * 60 * 60 /* millis * seconds * minutes = 1hr */);
+setInterval(remindAboutExchangeVotes, 1000 * 60 * 60 * 3 /* millis * seconds * minutes * hours = 3hr */);
 setTimeout(remindAboutExchangeVotes, 15000);
 
 /*
