@@ -200,26 +200,26 @@ if (TOKEN_TELEGRAM) {
 /*
  * Voting 
  */
-// function remindAboutExchangeVotes() {
-//     var voteMessage = 'Don\'t forget to vote for ECC to get listed on new exchanges!\r\n\r\n' +
-//         'We\'re currently in the running for:\r\n' +
-//         'COBINHOOD: https://cobinhood.canny.io/token-listing/p/ecc-coin-listing\r\n' +
-//         'NEXT.exchange: https://nextexchange.featureupvote.com/suggestions/4595/please-add-ecc-coin\r\n' +
-//         'CoinFalcon: https://feedback.coinfalcon.com/coin-request/p/ecc\r\n' +
-//         'Lescovex: https://lescovex.featureupvote.com/suggestions/6241/ecc-coin-blockchain-services-for-the-masses\r\n\r\n' +
-//         '_Please make sure to follow the rules for each site_';
-//     if (discordClient && DISCORD_CHANNELS.ecc) {
-//         DISCORD_CHANNELS.ecc.send(voteMessage).catch((err) => {console.error(err);});
-//     }
-//     if (slackClient && SLACK_CHANNELS.ecc) {
-//         slackClient.sendMessage(voteMessage, SLACK_CHANNELS.ecc.id);
-//     }
-//     if (telegramBot) {
-//         telegramBot.sendMessage(-1001313163406,  voteMessage, {parse_mode: 'Markdown'});
-//     }
-// };
-// setInterval(remindAboutExchangeVotes, 1000 * 60 * 60 /* millis * seconds * minutes = 1hr */);
-// setTimeout(remindAboutExchangeVotes, 15000);
+function remindAboutExchangeVotes() {
+    var voteMessage = 'Don\'t forget to vote for ECC to get listed on new exchanges!\r\n\r\n' +
+        'We\'re currently in the running for:\r\n' +
+        'COBINHOOD: https://cobinhood.canny.io/token-listing/p/ecc-coin-listing\r\n' +
+        'NEXT.exchange: https://nextexchange.featureupvote.com/suggestions/4595/please-add-ecc-coin\r\n' +
+        'CoinFalcon: https://feedback.coinfalcon.com/coin-request/p/ecc\r\n' +
+        'Lescovex: https://lescovex.featureupvote.com/suggestions/6241/ecc-coin-blockchain-services-for-the-masses\r\n\r\n' +
+        '_Please make sure to follow the rules for each site_';
+    if (discordClient && DISCORD_CHANNELS.ecc) {
+        DISCORD_CHANNELS.ecc.send(voteMessage).catch((err) => {console.error(err);});
+    }
+    if (slackClient && SLACK_CHANNELS.ecc) {
+        slackClient.sendMessage(voteMessage, SLACK_CHANNELS.ecc.id);
+    }
+    if (telegramBot) {
+        telegramBot.sendMessage(-1001313163406,  voteMessage, {parse_mode: 'Markdown'});
+    }
+};
+setInterval(remindAboutExchangeVotes, 1000 * 60 * 60 /* millis * seconds * minutes = 1hr */);
+setTimeout(remindAboutExchangeVotes, 15000);
 
 /*
  * Donations
