@@ -219,7 +219,6 @@ function remindAboutExchangeVotes() {
     }
 };
 setInterval(remindAboutExchangeVotes, 1000 * 60 * 60 * 3 /* millis * seconds * minutes * hours = 3hr */);
-setTimeout(remindAboutExchangeVotes, 15000);
 
 /*
  * Donations
