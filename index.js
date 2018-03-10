@@ -141,7 +141,7 @@ if (TOKEN_SLACK) {
             return;
         }
 
-        var response = processMessage(message.text, SOURCE_DISCORD);
+        var response = processMessage(message.text, SOURCE_SLACK);
         if (response) {
             if (typeof response == 'string') {
                 slackClient.sendMessage(response, message.channel);
@@ -218,7 +218,7 @@ function remindAboutExchangeVotes() {
         telegramBot.sendMessage(-1001313163406,  voteMessage, {parse_mode: 'Markdown'});
     }
 };
-setInterval(remindAboutExchangeVotes, 1000 * 60 * 60 * 3 /* millis * seconds * minutes * hours = 3hr */);
+setInterval(remindAboutExchangeVotes, 1000 * 60 * 60 * 6 /* millis * seconds * minutes * hours = 6hr interval */);
 
 /*
  * Donations
