@@ -200,7 +200,7 @@ if (TOKEN_TELEGRAM) {
 /*
  * Voting 
  */
-function remindAboutExchangeVotes() {
+function remindAboutExchangeVotes(service) {
     var voteMessage = 'Don\'t forget to vote for ECC to get listed on new exchanges!\r\n\r\n' +
         'We\'re currently in the running for:\r\n' +
         'COBINHOOD: https://cobinhood.canny.io/token-listing/p/ecc-coin-listing\r\n' +
@@ -208,17 +208,22 @@ function remindAboutExchangeVotes() {
         'CoinFalcon: https://feedback.coinfalcon.com/coin-request/p/ecc\r\n' +
         'Lescovex: https://lescovex.featureupvote.com/suggestions/6241/ecc-coin-blockchain-services-for-the-masses\r\n\r\n' +
         '_Please make sure to follow the rules for each site_';
-    if (discordClient && DISCORD_CHANNELS.ecc) {
+    if (discordClient && DISCORD_CHANNELS.ecc && service == 'discord') {
         DISCORD_CHANNELS.ecc.send(voteMessage).catch((err) => {console.error(err);});
     }
-    if (slackClient && SLACK_CHANNELS.ecc) {
+    if (slackClient && SLACK_CHANNELS.ecc && service == 'slack') {
         slackClient.sendMessage(voteMessage, SLACK_CHANNELS.ecc.id);
     }
-    if (telegramBot) {
+    if (telegramBot && service == 'telegram') {
         telegramBot.sendMessage(-1001313163406,  voteMessage, {parse_mode: 'Markdown'});
     }
 };
-setInterval(remindAboutExchangeVotes, 1000 * 60 * 60 * 6 /* millis * seconds * minutes * hours = 6hr interval */);
+
+/* millis * seconds * minutes * hours = xxhr interval */
+/* millis * seconds * minutes * 24 hours * days = day interval */
+setInterval(function() {remindAboutExchangeVotes('discord')}, 1000 * 60 * 60 * 24 * 7);
+setInterval(function() {remindAboutExchangeVotes('slack')}, 1000 * 60 * 60 * 24);
+setInterval(function() {remindAboutExchangeVotes('telegram')}, 1000 * 60 * 60 * 24);
 
 /*
  * Donations
