@@ -6,11 +6,14 @@
  * @author Troy McCabe <troymccabe@gmail.com>
  */
 
-let DISCORD_CHANNELS = {};
-let DISCORD_CLIENT;
-let SLACK_CHANNELS = {};
-let SLACK_CLIENT;
-let TELEGRAM_CLIENT;
+var http = require('http');
+var https = require('https');
+
+var DISCORD_CHANNELS = {};
+var DISCORD_CLIENT;
+var SLACK_CHANNELS = {};
+var SLACK_CLIENT;
+var TELEGRAM_CLIENT;
 const SOURCE_DISCORD = 'discord';
 const SOURCE_SLACK = 'slack';
 const SOURCE_TELEGRAM = 'telegram';
@@ -153,15 +156,32 @@ if (TOKEN_SLACK) {
 
     slackClient.start();
 
+    // grab public channels
     new WebClient(TOKEN_SLACK)
         .channels
         .list()
-        .then((result) => { 
+        .then((result) => {
             result.channels.forEach(channel => {
                 SLACK_CHANNELS[cleanChannelName(channel.name)] = channel;
             });
         })
         .catch(console.error);
+
+    // grab private channels
+    https.get(`https://slack.com/api/groups.list?token=${TOKEN_SLACK}`, res => {
+        var body = '';
+        res.on('data', data => { body += data; });
+        res.on('end', () => {
+            try {
+                var json = JSON.parse(body);
+                json.groups.forEach(channel => {
+                    SLACK_CHANNELS[cleanChannelName(channel.name)] = channel;
+                });
+            } catch (err) {
+                console.error(err);
+            }
+        });
+    });
 }
 
 /*
@@ -232,3 +252,39 @@ setInterval(function() {remindAboutExchangeVotes('telegram')}, 1000 * 60 * 60 * 
 /*
  * Donations
  */
+
+/* 
+ * Incoming message handling
+ */
+http
+    .createServer((req, res) => {
+        if (req.method == 'POST' && req.headers['content-type'] == 'application/json') {
+            var body = '';
+            req.on('data', chunk => {
+                body += chunk.toString();
+            });
+            req.on('end', () => {
+                try {
+                    var json = JSON.parse(body);
+                    var sent = false;
+                    if (json.channels && json.channels.slack && json.channels.slack.length > 0 && slackClient) {
+                        json.channels.slack.forEach((channel) => {
+                            if (SLACK_CHANNELS[cleanChannelName(channel)]) {
+                                slackClient.sendMessage(json.message, SLACK_CHANNELS[cleanChannelName(channel)].id);
+                                res.end('{"success":true}');
+                                sent = true;
+                            }
+                        });
+                    }
+
+                    if (!sent) {
+                        res.end('{"success":false,"message":"Sent to no channels"}');
+                    }
+                } catch (err) {
+                    console.error(err);
+                    res.end('{"success":false,"message":"Server error"}');
+                }
+            });
+        }
+    })
+    .listen(33788);
