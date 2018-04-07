@@ -193,7 +193,11 @@ if (TOKEN_TELEGRAM) {
                 }
             });
         }
-        telegramBot.sendMessage(message.chat.id, `Welcome ${addressTo.replace(/, /, '')} to the ECC Family. Please take a seat, and read the rules in channel information.`, {parse_mode: 'Markdown'});
+        telegramBot.sendMessage(
+            message.chat.id, 
+            `Welcome ${addressTo.replace(/, /, '')} to the ECC Family. Please take a seat, and read the rules in channel information.\n\n:point_right:New to ECC? Take a couple minutes to see our presentation video:point_left: https://youtu.be/9yesyhkl6gI`, 
+            {parse_mode: 'Markdown'}
+        );
     })
 }
 
