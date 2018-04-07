@@ -266,20 +266,14 @@ http
             req.on('end', () => {
                 try {
                     var json = JSON.parse(body);
-                    var sent = false;
                     if (json.channels && json.channels.slack && json.channels.slack.length > 0 && slackClient) {
                         json.channels.slack.forEach((channel) => {
                             if (SLACK_CHANNELS[cleanChannelName(channel)]) {
                                 slackClient.sendMessage(json.message, SLACK_CHANNELS[cleanChannelName(channel)].id);
-                                res.end('{"success":true}');
-                                sent = true;
                             }
                         });
                     }
-
-                    if (!sent) {
-                        res.end('{"success":false,"message":"Sent to no channels"}');
-                    }
+                    res.end('{"success":true}');
                 } catch (err) {
                     console.error(err);
                     res.end('{"success":false,"message":"Server error"}');
