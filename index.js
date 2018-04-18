@@ -245,9 +245,9 @@ function remindAboutExchangeVotes(service) {
 
 /* millis * seconds * minutes * hours = xxhr interval */
 /* millis * seconds * minutes * 24 hours * days = day interval */
-setInterval(function() {remindAboutExchangeVotes('discord')}, 1000 * 60 * 60 * 24 * 7);
-setInterval(function() {remindAboutExchangeVotes('slack')}, 1000 * 60 * 60 * 24);
-setInterval(function() {remindAboutExchangeVotes('telegram')}, 1000 * 60 * 60 * 24);
+// setInterval(function() {remindAboutExchangeVotes('discord')}, 1000 * 60 * 60 * 24 * 7);
+// setInterval(function() {remindAboutExchangeVotes('slack')}, 1000 * 60 * 60 * 24);
+// setInterval(function() {remindAboutExchangeVotes('telegram')}, 1000 * 60 * 60 * 24);
 
 /*
  * Thunderclap
