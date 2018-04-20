@@ -252,18 +252,18 @@ function remindAboutExchangeVotes(service) {
 /*
  * Thunderclap
  */
-setInterval(function() {
-    var thunderclapMessage = 'Help us get the word out! Sign up to be part of the Thunderclap to tell the world about Sapphire, ANS, and why ECC is the future! https://www.thunderclap.it/projects/69339-the-new-era-of-ecc'
-    if (discordClient && DISCORD_CHANNELS.ecc) {
-        DISCORD_CHANNELS.ecc.send(thunderclapMessage).catch((err) => {console.error(err);});
-    }
-    if (slackClient && SLACK_CHANNELS.ecc) {
-        slackClient.sendMessage(thunderclapMessage, SLACK_CHANNELS.ecc.id);
-    }
-    if (telegramBot) {
-        telegramBot.sendMessage(-1001313163406,  thunderclapMessage, {parse_mode: 'Markdown'});
-    }
-}, 1000 * 60 * 60 * 3);
+// setInterval(function() {
+//     var thunderclapMessage = 'Help us get the word out! Sign up to be part of the Thunderclap to tell the world about Sapphire, ANS, and why ECC is the future! https://www.thunderclap.it/projects/69339-the-new-era-of-ecc'
+//     if (discordClient && DISCORD_CHANNELS.ecc) {
+//         DISCORD_CHANNELS.ecc.send(thunderclapMessage).catch((err) => {console.error(err);});
+//     }
+//     if (slackClient && SLACK_CHANNELS.ecc) {
+//         slackClient.sendMessage(thunderclapMessage, SLACK_CHANNELS.ecc.id);
+//     }
+//     if (telegramBot) {
+//         telegramBot.sendMessage(-1001313163406,  thunderclapMessage, {parse_mode: 'Markdown'});
+//     }
+// }, 1000 * 60 * 60 * 3);
 
 /* 
  * Incoming message handling
