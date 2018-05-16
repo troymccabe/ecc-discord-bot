@@ -8,6 +8,7 @@
 
 var http = require('http');
 var https = require('https');
+var responses = require('./responses');
 
 var DISCORD_CHANNELS = {};
 var DISCORD_CLIENT;
@@ -29,51 +30,27 @@ function processMessage(message, source) {
     if (!message) {
         return new Promise((resolve, reject) => {});
     }
-    
-    if (message.match(/wh?en (moon|lambo)/igm)) {
-        switch (source) {
-            case SOURCE_DISCORD:
-                return 'How should I know? Go ask in <#409184678730268672>';
 
-            case SOURCE_SLACK:
-                return 'Check with #price-prediction on Discord: https://discord.gg/X2XVaQz';
+    for (var i = 0; i < responses.length; i++) {
+        var response = responses[i];
+        if (new RegExp(response.pattern, response.pattern_flags || 'igm').test(message)) {
+            if (response.response) {
+                return response.response;
+            } else if (response.response_lines) {
+                return response.response_lines.join('');
+            } else if (response.responses) {
+                switch (source) {
+                    case SOURCE_DISCORD:
+                        return response.responses[SOURCE_DISCORD];
 
-            case SOURCE_TELEGRAM:
-                return 'After hard work!';
+                    case SOURCE_SLACK:
+                        return response.responses[SOURCE_SLACK];
+
+                    case SOURCE_TELEGRAM:
+                        return response.responses[SOURCE_TELEGRAM];
+                }
+            }
         }
-    }
-
-    if (message.match(/\?help/igm)) {
-        return (
-            'I can provide information on the following topics (use the `?***` command to see details):\r\n\r\n' +
-            '`?wiki`: Get the link to the wiki\r\n' + 
-            '`?wiki.backup`: Get the link to the backup process wiki article\r\n' + 
-            '`?wiki.faq`: Get the link to the FAQ wiki article\r\n' + 
-            '`?wiki.installation`: Get the link to the installation wiki article\r\n' + 
-            '`?wiki.staking`: Get the link to the staking wiki article\r\n' +
-            '`addr(ECC_ADDRESS)`: Shows the date first seen on the network, as well as the current balance\r\n' +
-            '`tx(TXID)`: Shows detail for a specific transaction'
-        );
-    }
-
-    if (message.match(/\?wiki(?!\.)/igm)) {
-        return 'https://github.com/project-ecc/ECC-Wiki/wiki';
-    }
-
-    if (message.match(/\?wiki\.backup/igm)) {
-        return 'https://github.com/project-ecc/ECC-Wiki/wiki/Backup-process';
-    }
-
-    if (message.match(/\?wiki\.faq/igm)) {
-        return 'https://github.com/project-ecc/ECC-Wiki/wiki/FAQ';
-    }
-
-    if (message.match(/\?wiki\.installation/igm)) {
-        return 'https://github.com/project-ecc/ECC-Wiki/wiki/Installation';
-    }
-
-    if (message.match(/\?wiki\.staking/igm)) {
-        return 'https://github.com/project-ecc/ECC-Wiki/wiki/How-to-stake';
     }
 
     var matches = message.match(/addr\((\w+)\)/i);
@@ -224,24 +201,24 @@ if (TOKEN_TELEGRAM) {
 /*
  * Voting 
  */
-function remindAboutExchangeVotes(service) {
-    var voteMessage = 'Don\'t forget to vote for ECC to get listed on new exchanges!\r\n\r\n' +
-        'We\'re currently in the running for:\r\n' +
-        'COBINHOOD: https://cobinhood.canny.io/token-listing/p/ecc-coin-listing\r\n' +
-        'NEXT.exchange: https://nextexchange.featureupvote.com/suggestions/4595/please-add-ecc-coin\r\n' +
-        'CoinFalcon: https://feedback.coinfalcon.com/coin-request/p/ecc\r\n' +
-        'Lescovex: https://lescovex.featureupvote.com/suggestions/6241/ecc-coin-blockchain-services-for-the-masses\r\n\r\n' +
-        '_Please make sure to follow the rules for each site_';
-    if (discordClient && DISCORD_CHANNELS.ecc && service == 'discord') {
-        DISCORD_CHANNELS.ecc.send(voteMessage).catch((err) => {console.error(err);});
-    }
-    if (slackClient && SLACK_CHANNELS.ecc && service == 'slack') {
-        slackClient.sendMessage(voteMessage, SLACK_CHANNELS.ecc.id);
-    }
-    if (telegramBot && service == 'telegram') {
-        telegramBot.sendMessage(-1001313163406,  voteMessage, {parse_mode: 'Markdown'});
-    }
-};
+//function remindAboutExchangeVotes(service) {
+//    var voteMessage = 'Don\'t forget to vote for ECC to get listed on new exchanges!\r\n\r\n' +
+//        'We\'re currently in the running for:\r\n' +
+//        'COBINHOOD: https://cobinhood.canny.io/token-listing/p/ecc-coin-listing\r\n' +
+//        'NEXT.exchange: https://nextexchange.featureupvote.com/suggestions/4595/please-add-ecc-coin\r\n' +
+//        'CoinFalcon: https://feedback.coinfalcon.com/coin-request/p/ecc\r\n' +
+//        'Lescovex: https://lescovex.featureupvote.com/suggestions/6241/ecc-coin-blockchain-services-for-the-masses\r\n\r\n' +
+//        '_Please make sure to follow the rules for each site_';
+//    if (discordClient && DISCORD_CHANNELS.ecc && service == 'discord') {
+//        DISCORD_CHANNELS.ecc.send(voteMessage).catch((err) => {console.error(err);});
+//    }
+//    if (slackClient && SLACK_CHANNELS.ecc && service == 'slack') {
+//        slackClient.sendMessage(voteMessage, SLACK_CHANNELS.ecc.id);
+//    }
+//    if (telegramBot && service == 'telegram') {
+//        telegramBot.sendMessage(-1001313163406,  voteMessage, {parse_mode: 'Markdown'});
+//    }
+//};
 
 /* millis * seconds * minutes * hours = xxhr interval */
 /* millis * seconds * minutes * 24 hours * days = day interval */
@@ -268,31 +245,31 @@ function remindAboutExchangeVotes(service) {
 /* 
  * Incoming message handling
  */
-http
-    .createServer((req, res) => {
-        if (req.method == 'POST' && req.headers['content-type'] == 'application/json') {
-            var body = '';
-            req.on('data', chunk => {
-                body += chunk.toString();
-            });
-            req.on('end', () => {
-                try {
-                    var json = JSON.parse(body);
-                    if (json.channels && json.channels.slack && json.channels.slack.length > 0 && slackClient) {
-                        json.channels.slack.forEach((channel) => {
-                            if (SLACK_CHANNELS[cleanChannelName(channel)]) {
-                                slackClient.sendMessage(json.message, SLACK_CHANNELS[cleanChannelName(channel)].id);
-                            }
-                        });
-                    }
-                    res.end('{"success":true}');
-                } catch (err) {
-                    console.error(err);
-                    res.end('{"success":false,"message":"Server error"}');
-                }
-            });
-        } else {
-            res.end('{"success":false,"message":"Nah"}');
-        }
-    })
-    .listen(33788);
+//http
+//    .createServer((req, res) => {
+//        if (req.method == 'POST' && req.headers['content-type'] == 'application/json') {
+//            var body = '';
+//            req.on('data', chunk => {
+//                body += chunk.toString();
+//            });
+//            req.on('end', () => {
+//                try {
+//                    var json = JSON.parse(body);
+//                    if (json.channels && json.channels.slack && json.channels.slack.length > 0 && slackClient) {
+//                        json.channels.slack.forEach((channel) => {
+//                            if (SLACK_CHANNELS[cleanChannelName(channel)]) {
+//                                slackClient.sendMessage(json.message, SLACK_CHANNELS[cleanChannelName(channel)].id);
+//                            }
+//                        });
+//                    }
+//                    res.end('{"success":true}');
+//                } catch (err) {
+//                    console.error(err);
+//                    res.end('{"success":false,"message":"Server error"}');
+//                }
+//            });
+//        } else {
+//            res.end('{"success":false,"message":"Nah"}');
+//        }
+//    })
+//    .listen(33788);

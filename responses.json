@@ -1,0 +1,43 @@
+[
+  {
+    "pattern": "wh?en (moon|lambo)",
+    "responses": {
+      "discord": "How should I know? Go ask in <#409184678730268672>",
+      "slack": "Check with #price-prediction on Discord: https://discord.gg/X2XVaQz",
+      "telegram": "After hard work!"
+    }
+  },
+  {
+    "pattern": "\\?help",
+    "response_lines": [
+      "I can provide information on the following topics (use the `?***` command to see details):\r\n\r\n",
+      "`?wiki`: Get the link to the wiki\r\n",
+      "`?wiki.backup`: Get the link to the backup process wiki article\r\n",
+      "`?wiki.faq`: Get the link to the FAQ wiki article\r\n",
+      "`?wiki.installation`: Get the link to the installation wiki article\r\n",
+      "`?wiki.staking`: Get the link to the staking wiki article\r\n",
+      "`addr(ECC_ADDRESS)`: Shows the date first seen on the network, as well as the current balance\r\n",
+      "`tx(TXID)`: Shows detail for a specific transaction"
+    ]
+  },
+  {
+    "pattern": "\\?wiki(?!\\.)",
+    "response": "https://github.com/project-ecc/ECC-Wiki/wiki"
+  },
+  {
+    "pattern": "\\?wiki\\.backup",
+    "response": "https://github.com/project-ecc/ECC-Wiki/wiki/Backup-process"
+  },
+  {
+    "pattern": "\\?wiki\\.faq",
+    "response": "https://github.com/project-ecc/ECC-Wiki/wiki/FAQ"
+  },
+  {
+    "pattern": "\\?wiki\\.installation",
+    "response": "https://github.com/project-ecc/ECC-Wiki/wiki/Installation"
+  },
+  {
+    "pattern": "\\?wiki\\.staking",
+    "response": "https://github.com/project-ecc/ECC-Wiki/wiki/How-to-stake"
+  }
+]
