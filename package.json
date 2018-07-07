@@ -9,8 +9,10 @@
         "node": ">=0.10"
     },
     "dependencies": {
+        "@slack/client": "^3.16",
+        "bitcoin-core": "^2.0.0",
         "discord.js": "^11.3.0",
-        "node-telegram-bot-api": "^0.30",
-        "@slack/client": "^3.16"
+        "dotenv": "^6.0.0",
+        "node-telegram-bot-api": "^0.30"
     }
 }
