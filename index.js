@@ -6,65 +6,69 @@
  * @author Troy McCabe <troymccabe@gmail.com>
  */
 
-var http = require('http');
-var https = require('https');
-var responses = require('./responses');
 
-var DISCORD_CHANNELS = {};
-var DISCORD_CLIENT;
-var SLACK_CHANNELS = {};
-var SLACK_CLIENT;
-var TELEGRAM_CLIENT;
+/**
+ * Imports and requirements
+ */
+
+import Wallet from './util/wallet';
+import {processMessage} from "./util/messagehandler";
+import {cleanChannelName} from "./util/helperfunctions";
+let cleanup = require('./util/cleanup').Cleanup(cleanupFunction);
+let http = require('http');
+let https = require('https');
+
+/**
+ * Objects
+ *
+ * @type {{}}
+ */
+
+let DISCORD_CHANNELS = {};
+let DISCORD_CLIENT;
+let SLACK_CHANNELS = {};
+let SLACK_CLIENT;
+let TELEGRAM_CLIENT;
+let wallet = null;
+
+/**
+ * Constants
+ *
+ * @type {string}
+ */
 const SOURCE_DISCORD = 'discord';
 const SOURCE_SLACK = 'slack';
 const SOURCE_TELEGRAM = 'telegram';
-const TOKEN_DISCORD = process.env.ECC_BOT_DISCORD_TOKEN;
-const TOKEN_SLACK = process.env.ECC_BOT_SLACK_TOKEN;
-const TOKEN_TELEGRAM = process.env.ECC_BOT_TELEGRAM_TOKEN;
+const TOKEN_DISCORD = process.env.BOT_DISCORD_TOKEN;
+const TOKEN_SLACK = process.env.BOT_SLACK_TOKEN;
+const TOKEN_TELEGRAM = process.env.BOT_TELEGRAM_TOKEN;
+const CONNECT_TO_WALLET = process.env.CONNECT_TO_WALLET;
 
-function cleanChannelName(channel) {
-    return channel.toLowerCase().replace(/( |-)/, '_');
+
+// defines app specific callback...
+function cleanupFunction() {
+    console.log('App specific cleanup code...');
+    if (CONNECT_TO_WALLET) {
+        wallet.walletstop((result) => {
+            if (result) {
+                console.log(result)
+            }
+        });
+    }
 }
 
-function processMessage(message, source) {
-    if (!message) {
-        return new Promise((resolve, reject) => {});
-    }
+// All of the following code is only needed for test demo
 
-    for (var i = 0; i < responses.length; i++) {
-        var response = responses[i];
-        if (new RegExp(response.pattern, response.pattern_flags || 'igm').test(message)) {
-            if (response.response) {
-                return response.response;
-            } else if (response.response_lines) {
-                return response.response_lines.join('');
-            } else if (response.responses) {
-                switch (source) {
-                    case SOURCE_DISCORD:
-                        return response.responses[SOURCE_DISCORD];
+// Prevents the program from closing instantly
+process.stdin.resume();
 
-                    case SOURCE_SLACK:
-                        return response.responses[SOURCE_SLACK];
-
-                    case SOURCE_TELEGRAM:
-                        return response.responses[SOURCE_TELEGRAM];
-                }
-            }
+if (CONNECT_TO_WALLET){
+    wallet = new Wallet()
+    wallet.walletstart((result) => {
+        if (result) {
+            console.log(result)
         }
-    }
-
-    var matches = message.match(/addr\((\w+)\)/i);
-    if (matches && matches.length > 1) {
-        return require('./lib/addr.js')(matches[1]);
-    }
-
-    var matches = message.match(/tx\((\w+)\)/i);
-    if (matches && matches.length > 1) {
-        return require('./lib/tx.js')(matches[1]);
-    }
-    console.log(message)
-
-    return;
+    });
 }
 
 /*
@@ -81,7 +85,7 @@ if (TOKEN_DISCORD) {
             return;
         }
 
-        var response = processMessage(message.content, SOURCE_DISCORD);
+        var response = processMessage(message, SOURCE_DISCORD);
         if (response) {
             if (typeof response == 'string') {
                 message.channel.send(response).catch(reason => {});
@@ -122,7 +126,7 @@ if (TOKEN_SLACK) {
             return;
         }
 
-        var response = processMessage(message.text, SOURCE_SLACK);
+        var response = processMessage(message, SOURCE_SLACK);
         if (response) {
             if (typeof response == 'string') {
                 slackClient.sendMessage(response, message.channel);
@@ -170,8 +174,9 @@ if (TOKEN_TELEGRAM) {
     var telegramBot = new TelegramBot(TOKEN_TELEGRAM, {polling: {interval: 0, params: {timeout: 200}}});
 
     telegramBot.on('message', (message) => {
+        console.log(message)
         console.log(message.chat.id);
-        var response = processMessage(message.text, SOURCE_TELEGRAM);
+        var response = processMessage(message, SOURCE_TELEGRAM);
 
         if (typeof response == 'string') {
             telegramBot.sendMessage(message.chat.id, response, {parse_mode: 'Markdown'});
