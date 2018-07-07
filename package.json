@@ -14,8 +14,10 @@
         "bitcoin-core": "^2.0.0",
         "discord.js": "^11.3.0",
         "dotenv": "^6.0.0",
+        "mysql2": "^1.5.3",
         "node-powershell": "^3.3.1",
-        "node-telegram-bot-api": "^0.30"
+        "node-telegram-bot-api": "^0.30",
+        "sequelize": "^4.38.0"
     },
     "devDependencies": {
         "babel-core": "^6.26.3",

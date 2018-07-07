@@ -1,3 +1,6 @@
+import {tip, deposit, checkBalance, donateToDev, withdrawal} from "../lib/tip";
+
+
 let responses = require('../responses');
 const SOURCE_DISCORD = 'discord';
 const SOURCE_SLACK = 'slack';
@@ -47,9 +50,18 @@ export function processMessage(message, source) {
         return require('../lib/tx.js')(matches[1]);
     }
 
-    if (message.chat.type !== null && message.chat.type === "private" && source === SOURCE_TELEGRAM){
-        console.log('in here boys')
+    if (source === SOURCE_TELEGRAM) {
+        if (message.chat.type === "private"){
+            var matches = messageText.match(/tip\((\w+)\)/i);
+            if (matches && matches.length > 1) {
+                return tip(matches[1]);
+            }
+        } else {
+
+        }
     }
+
+
     console.log(messageText)
 
     return;
