@@ -62,6 +62,7 @@ function processMessage(message, source) {
     if (matches && matches.length > 1) {
         return require('./lib/tx.js')(matches[1]);
     }
+    console.log(message)
 
     return;
 }
